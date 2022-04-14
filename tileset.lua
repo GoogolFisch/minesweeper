@@ -1,8 +1,10 @@
 function tileset_loadAll()
+    -- load picture
     tileset = love.graphics.newImage("images.png")
 end
 
 function generateQuads(atlas, tilewidth, tileheight)
+    -- generate Quads
     local sheetWidth  = atlas:getWidth() / tilewidth
     local sheetHeight = atlas:getWidth() / tileheight
     local sheetCounter = 1;local quads = {}
@@ -22,9 +24,11 @@ function displayLevel(level,player,width,height,offx,offy,bombs,win)
     local ib = {[true] = 1,[false] = 0};local iB = {[false] = 1,[true] = 0}
     for y = 0, lowH - 1,1 do
         for x = 0, lowW - 1,1 do
-            if level[y + 1][x + 1] == 0 then -- wall
-                local left = ((x     < 1   ) or (level[y + 1][x    ] == 0));local up__ = ((y     < 1   ) or (level[y    ][x + 1] == 0))
-                local rigt = ((x + 2 > lowW) or (level[y + 1][x + 2] == 0));local down = ((y + 2 > lowH) or (level[y + 2][x + 1] == 0))
+            if level[y + 1][x + 1] == 0 then -- wall  Hell
+                local left = ((x     < 1   ) or (level[y + 1][x    ] == 0))
+                local up__ = ((y     < 1   ) or (level[y    ][x + 1] == 0))
+                local rigt = ((x + 2 > lowW) or (level[y + 1][x + 2] == 0)) -- right
+                local down = ((y + 2 > lowH) or (level[y + 2][x + 1] == 0))
                 if left and up__ and rigt and down then -- full square
                     love.graphics.draw(tileset,sprite[9],x * tileW + offx,y * tileH + offy,0,tileW * .125,tileH * .125)
                 elseif ib[left] + ib[up__] + ib[rigt] + ib[down] == 3 then -- one side missing
@@ -38,10 +42,10 @@ function displayLevel(level,player,width,height,offx,offy,bombs,win)
                         tileset,sprite[12],(x + ib[left]) * tileW + offx,y * tileH + offy,ndeg * ib[left],tileW * .125,tileH * .125
                     )
                 elseif ib[left] + ib[up__] + ib[rigt] + ib[down] == 2 then -- two ear sides missing
-                    local rot = 0;local ox = 0;local oy = 0
-                    if rigt and up__ then rot = 3 * ndeg;oy = 1
-                    elseif left and up__ then rot = 2 * ndeg;ox = 1;oy = 1
-                    elseif down and left then rot = ndeg;ox = 1
+                    local rot = 0;local ox = 0;local oy = 0 -- define everything
+                    if rigt and up__ then rot = 3 * ndeg;oy = 1 -- offsets
+                    elseif left and up__ then rot = 2 * ndeg;ox = 1;oy = 1 -- offsets
+                    elseif down and left then rot = ndeg;ox = 1 -- offsets
                     end
                     love.graphics.draw(
                         tileset,sprite[11],(x + ox) * tileW + offx,(y + oy) * tileH + offy,rot,tileW * .125,tileH * .125
@@ -58,9 +62,11 @@ function displayLevel(level,player,width,height,offx,offy,bombs,win)
                         0,tileW * .125,tileH * .125
                     )
                 end
+                -- level[y + 1][x + 1] == 0
             elseif level[y + 1][x + 1] == 1 then
                 love.graphics.draw(tileset,sprite[1],x * tileW + offx,y * tileH + offy,0,tileW * .125,tileH * .125)
             elseif level[y + 1][x + 1] == 2 then
+                -- mines around the tile
                 local a = 
                 ib[((x     > 0    and y     > 0   ) and (level[y    ][x    ] == 3))] +
                 ib[((                 y     > 0   ) and (level[y    ][x + 1] == 3))] +
@@ -71,7 +77,8 @@ function displayLevel(level,player,width,height,offx,offy,bombs,win)
                 ib[((x     > 0    and y + 1 < lowH) and (level[y + 2][x    ] == 3))] +
                 ib[((x     > 0                    ) and (level[y + 1][x    ] == 3))]
 
-                if a == 0 then love.graphics.draw(tileset,sprite[17],x * tileW + offx,y * tileH + offy,0,tileW * .125,tileH * .125)
+                if a == 0 then
+                    love.graphics.draw(tileset,sprite[17],x * tileW + offx,y * tileH + offy,0,tileW * .125,tileH * .125)
                 elseif a == 1 then
                     love.graphics.draw(tileset,sprite[18],x * tileW + offx,y * tileH + offy,0,tileW * .125,tileH * .125)
                 elseif a == 2 then
@@ -82,6 +89,7 @@ function displayLevel(level,player,width,height,offx,offy,bombs,win)
                     love.graphics.draw(tileset,sprite[21],x * tileW + offx,y * tileH + offy,0,tileW * .125,tileH * .125)
                 elseif a > 4 then love.graphics.draw(tileset,sprite[22],x * tileW + offx,y * tileH + offy,0,tileW * .125,tileH * .125)
                 end
+                -- level[y + 1][x + 1] == 2
             elseif level[y + 1][x + 1] == 3 and bombs then
                 love.graphics.draw(tileset,sprite[23],x * tileW + offx,y * tileH + offy,0,tileW * .125,tileH * .125)
             elseif level[y + 1][x + 1] == 3 then
@@ -89,11 +97,11 @@ function displayLevel(level,player,width,height,offx,offy,bombs,win)
             elseif level[y + 1][x + 1] == 5 then
                 love.graphics.draw(tileset,sprite[24],x * tileW + offx,y * tileH + offy,0,tileW * .125,tileH * .125)
             end
-        end
-    end
-    if bombs and not win then
+        end -- [x = 0, lowW - 1,1]
+    end -- [y = 0, lowH - 1,1]
+    if bombs and not win then -- lost
         love.graphics.draw(tileset,sprite[7],player.x * tileW + offx,player.y * tileH + offy,0,tileW * .125,tileH * .125)
-    else
+    else -- draw player
         if player.animation == 0 then
             love.graphics.draw(tileset,sprite[2],player.x * tileW + offx,player.y * tileH + offy,0,tileW * .125,tileH * .125)
         elseif player.animation == 1 then
