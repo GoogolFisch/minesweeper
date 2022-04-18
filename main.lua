@@ -213,9 +213,6 @@ function love.draw()
             false  -- won
         )
         love.graphics.setColor(1,1,1)
-        love.graphics.setFont(newfont)
-        love.graphics.print(math.floor(timer) .. "s",minsize * w_h,0)
-        love.graphics.print(steps .. "sept",minsize * w_h,48)
     elseif gametype == 110 then
         love.graphics.setBackgroundColor(1,0,0)
         displayLevel(
@@ -238,10 +235,10 @@ function love.draw()
         love.graphics.setColor(1,0,0.5)
         player_draw(0,0,true,true)
         love.graphics.setColor(1,1,1)
-        love.graphics.setFont(newfont)
-        love.graphics.print(math.floor(timer) .. "s",minsize * w_h,0)
-        love.graphics.print(steps .. "sept",minsize * w_h,48)
     end
+    love.graphics.setFont(newfont)
+    love.graphics.print(math.floor(timer * 10) .. "u",minsize * w_h,0)
+    love.graphics.print(steps .. "sept",minsize * w_h,48)
     for x,y in pairs(keyboard) do -- save to old keyboard
         keyboardOld[x] = y
     end
