@@ -39,3 +39,21 @@ function player_move(maxwidth,maxheight,keyboard,level)
     end
     return move -- hased moved
 end
+
+function player_draw(offx,offy,endet,win)
+    if endet and not win then -- lost
+        love.graphics.draw(tileset,sprite[7],player.x * tileW + offx,player.y * tileH + offy,0,tileW * .125,tileH * .125)
+    else -- draw player
+        if player.animation == 0 then
+            love.graphics.draw(tileset,sprite[2],player.x * tileW + offx,player.y * tileH + offy,0,tileW * .125,tileH * .125)
+        elseif player.animation == 1 then
+            love.graphics.draw(tileset,sprite[3],player.x * tileW + offx,(player.y + player.counter * 4) * tileH + offy,0,tileW * .125,tileH * .125)
+        elseif player.animation == 2 then
+            love.graphics.draw(tileset,sprite[4],(player.x + player.counter * 4) * tileW + offx,player.y * tileH + offy,0,tileW * .125,tileH * .125)
+        elseif player.animation == 3 then
+            love.graphics.draw(tileset,sprite[5],player.x * tileW + offx,(player.y - player.counter * 4) * tileH + offy,0,tileW * .125,tileH * .125)
+        elseif player.animation == 4 then
+            love.graphics.draw(tileset,sprite[6],(player.x - player.counter * 4) * tileW + offx,player.y * tileH + offy,0,tileW * .125,tileH * .125)
+        end
+    end
+end

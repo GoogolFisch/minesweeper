@@ -18,9 +18,12 @@ function generateQuads(atlas, tilewidth, tileheight)
     return quads
 end
 
-function displayLevel(level,player,width,height,offx,offy,bombs,win)
-    local lowW = #(level[1]);local lowH = #(level);local ndeg = math.pi * .5
-    local tileW = width  / lowW;local tileH = height / lowH
+function displayLevel(level,width,height,offx,offy,bombs,win)
+    lowW = #(level[1])
+    lowH = #(level)
+    local ndeg = math.pi * .5
+    tileW = width  / lowW
+    tileH = height / lowH
     local ib = {[true] = 1,[false] = 0};local iB = {[false] = 1,[true] = 0}
     for y = 0, lowH - 1,1 do
         for x = 0, lowW - 1,1 do
@@ -99,19 +102,4 @@ function displayLevel(level,player,width,height,offx,offy,bombs,win)
             end
         end -- [x = 0, lowW - 1,1]
     end -- [y = 0, lowH - 1,1]
-    if bombs and not win then -- lost
-        love.graphics.draw(tileset,sprite[7],player.x * tileW + offx,player.y * tileH + offy,0,tileW * .125,tileH * .125)
-    else -- draw player
-        if player.animation == 0 then
-            love.graphics.draw(tileset,sprite[2],player.x * tileW + offx,player.y * tileH + offy,0,tileW * .125,tileH * .125)
-        elseif player.animation == 1 then
-            love.graphics.draw(tileset,sprite[3],player.x * tileW + offx,(player.y + player.counter * 4) * tileH + offy,0,tileW * .125,tileH * .125)
-        elseif player.animation == 2 then
-            love.graphics.draw(tileset,sprite[4],(player.x + player.counter * 4) * tileW + offx,player.y * tileH + offy,0,tileW * .125,tileH * .125)
-        elseif player.animation == 3 then
-            love.graphics.draw(tileset,sprite[5],player.x * tileW + offx,(player.y - player.counter * 4) * tileH + offy,0,tileW * .125,tileH * .125)
-        elseif player.animation == 4 then
-            love.graphics.draw(tileset,sprite[6],(player.x - player.counter * 4) * tileW + offx,player.y * tileH + offy,0,tileW * .125,tileH * .125)
-        end
-    end
 end

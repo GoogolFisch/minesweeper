@@ -28,13 +28,8 @@ function love.load()
 
     love.window.setMode(1600,900,{["resizable"]=true,["centered"]=true})
 
-    sublevel = {}
-    for x=1,width,1 do
-        table.insert(sublevel,0)
-    end
-    for y=1,height,1 do
-        table.insert(level,sublevel)
-    end
+    setup()
+    gametype = 0
 end
 
 function setup()
@@ -42,6 +37,9 @@ function setup()
     local sublevel
     local value
     local ending
+    timer = 0
+    steps = 0
+
     gametype = 100
     w_h = width  / height
     h_w = height / width
@@ -96,8 +94,10 @@ function love.update(dt)
             love.event.quit(0)
         end
     elseif gametype == 100 then
+        timer = timer + dt
         if player_move(width,height,keyboard,level) then
             -- if moved
+            steps = steps + 1
 
             player.counter = 0.25 -- set animation
             if level[player.y + 1][player.x + 1] == 1 or level[player.y + 1][player.x + 1] == 2 then
@@ -202,32 +202,45 @@ function love.draw()
         love.graphics.setBackgroundColor(0,0,0)
         displayLevel(
             level,
-            player,
             minsize * w_h,minsize, -- size
             0,0, -- offsets
-            false, -- show bombs
+            false -- show bombs
+        )
+        love.graphics.setColor(1,0,0.5)
+        player_draw(
+            0,0, -- offset
+            false, -- endet game
             false  -- won
         )
+        love.graphics.setColor(1,1,1)
+        love.graphics.setFont(newfont)
+        love.graphics.print(math.floor(timer) .. "s",minsize * w_h,0)
+        love.graphics.print(steps .. "sept",minsize * w_h,48)
     elseif gametype == 110 then
         love.graphics.setBackgroundColor(1,0,0)
         displayLevel(
             level,
-            player,
             minsize * w_h,minsize,
             0,0,
-            true,
-            false
+            true
         )
+        love.graphics.setColor(1,0,0.5)
+        player_draw(0,0,true,false)
+        love.graphics.setColor(1,1,1)
     elseif gametype == 120 then
         love.graphics.setBackgroundColor(0,1,0)
         displayLevel(
             level,
-            player,
             minsize * w_h,minsize,
             0,0,
-            true,
-            true -- won the game
+            true
         )
+        love.graphics.setColor(1,0,0.5)
+        player_draw(0,0,true,true)
+        love.graphics.setColor(1,1,1)
+        love.graphics.setFont(newfont)
+        love.graphics.print(math.floor(timer) .. "s",minsize * w_h,0)
+        love.graphics.print(steps .. "sept",minsize * w_h,48)
     end
     for x,y in pairs(keyboard) do -- save to old keyboard
         keyboardOld[x] = y
