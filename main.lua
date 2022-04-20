@@ -1,6 +1,7 @@
 function love.load()
     require("tileset")
     require("player")
+    require("jsonload")
     love.window.setTitle("MineSeeker")
 
     player_constructor()
@@ -28,8 +29,19 @@ function love.load()
 
     love.window.setMode(1600,900,{["resizable"]=true,["centered"]=true})
 
+    if seed == nil then
+        seed = os.time()
+    end
     setup()
     gametype = 0
+    local jsonfile = io.open("levels.json","r")
+    all_levels = load(jsonfile:read("*a"))
+    io.close(jsonfile)
+    levels_select = 1
+    print(all_levels[levels_select])
+    for k,v in pairs(all_levels[levels_select]) do
+        print(k .. "|" .. v)
+    end
 end
 
 function setup()
@@ -39,6 +51,7 @@ function setup()
     local ending
     timer = 0
     steps = 0
+    alltosee = 0
 
     gametype = 100
     w_h = width  / height
@@ -46,7 +59,7 @@ function setup()
     level  = {}
     player_constructor()
     -- generate board
-    math.randomseed( os.time() )
+    math.randomseed(seed)
     math.random() math.random() math.random()
     for y=1,height,1 do
         sublevel = {}
@@ -55,6 +68,7 @@ function setup()
                 table.insert(sublevel,0)
             else
                 table.insert(sublevel,1)
+                alltosee = alltosee + 1
             end
         end
         table.insert(level,sublevel)
@@ -65,6 +79,8 @@ function setup()
     level[1][2] = 2
     level[2][1] = 2
     level[height][width] = 5
+    alltosee = alltosee - bombs
+    opened = 3
 
     for value=1,bombs do
         ending = true
@@ -83,6 +99,10 @@ function love.update(dt)
     player.counter = player.counter - dt
     
     if keyboard["r"] then -- regenerate
+        seed   = all_levels[levels_select]["seed"  ]
+        if seed == nil then
+            seed = os.time()
+        end
         setup()
     elseif keyboard["m"] then -- back to start
         gametype = 0
@@ -102,6 +122,9 @@ function love.update(dt)
             player.counter = 0.25 -- set animation
             if level[player.y + 1][player.x + 1] == 1 or level[player.y + 1][player.x + 1] == 2 then
                 -- if walkable
+                if level[player.y + 1][player.x + 1] == 1 then
+                    opened = opened + 1
+                end
                 level[player.y + 1][player.x + 1] = 2
                 local ib = {[true] = 1,[false] = 0}
                 local lowW = #(level[1])
@@ -120,27 +143,35 @@ function love.update(dt)
                     -- reveal tiles
                     if  level[player.y] and level[player.y][player.x] == 1 then
                         level[player.y][player.x] = 2
+                        opened = opened + 1
                     end
                     if  level[player.y] and level[player.y][player.x + 1] == 1 then
                         level[player.y][player.x + 1] = 2
+                        opened = opened + 1
                     end
                     if  level[player.y] and level[player.y][player.x + 2] == 1 then
                         level[player.y][player.x + 2] = 2
+                        opened = opened + 1
                     end
                     if  level[player.y + 1][player.x] == 1 then
                         level[player.y + 1][player.x] = 2
+                        opened = opened + 1
                     end
                     if  level[player.y + 1][player.x + 2] == 1 then
                         level[player.y + 1][player.x + 2] = 2
+                        opened = opened + 1
                     end
                     if  level[player.y + 2] and level[player.y + 2][player.x] == 1 then
                         level[player.y + 2][player.x] = 2
+                        opened = opened + 1
                     end
                     if  level[player.y + 2] and level[player.y + 2][player.x + 1] == 1 then
                         level[player.y + 2][player.x + 1] = 2
+                        opened = opened + 1
                     end
                     if  level[player.y + 2] and level[player.y + 2][player.x + 2] == 1 then
                         level[player.y + 2][player.x + 2] = 2
+                        opened = opened + 1
                     end
                 end
             elseif level[player.y + 1][player.x + 1] == 3 then
@@ -160,6 +191,7 @@ end
 
 function love.draw()
     minsize = math.min(love.graphics.getWidth(),love.graphics.getHeight())
+    local maxsize = minsize * w_h
     if gametype == 0 then
         love.graphics.setFont(newfont)
         love.graphics.print("Play Game?\"r\"")
@@ -186,23 +218,33 @@ function love.draw()
         love.graphics.print("-",250,250) -- wall
         love.graphics.print("-",350,250) -- bombs
 
-        love.graphics.print("w", 40,325) -- width
-        love.graphics.print("h",140,325) -- height
-        love.graphics.print("w",240,325) -- wall
-        love.graphics.print("b",340,325) -- bombs
+        -- love.graphics.print("wi", 25,325) -- width
+        love.graphics.draw(tileset,sprite[15],25,330,0,75 / 8)
+        -- love.graphics.print("hg",125,325) -- height
+        love.graphics.draw(tileset,sprite[16],125,330,0,75 / 8)
+        -- love.graphics.print("wl",225,325) -- wall
+        love.graphics.draw(tileset,sprite[14],225,330,0,75 / 8)
+        -- love.graphics.print("bo",325,325) -- bombs
+        love.graphics.draw(tileset,sprite[23],325,330,0,75 / 8)
 
         love.graphics.print("" .. width , 20,180) -- width
         love.graphics.print("" .. height,120,180) -- height
         love.graphics.print("" .. wall  ,220,180) -- wall
         love.graphics.print("" .. bombs ,320,180) -- bombs
 
+        love.graphics.setColor(.25,.25,.25)
+        love.graphics.rectangle("fill",25,450,700,75) -- name
+
         love.graphics.setColor(1,1,1)
+        love.graphics.print(all_levels[levels_select]["name"],25,450) -- name
+        love.graphics.print(seed,800,450) -- name
+
         love.graphics.setBackgroundColor(0,0,0)
     elseif gametype == 100 then
         love.graphics.setBackgroundColor(0,0,0)
         displayLevel(
             level,
-            minsize * w_h,minsize, -- size
+            maxsize,minsize, -- size
             0,0, -- offsets
             false -- show bombs
         )
@@ -217,7 +259,7 @@ function love.draw()
         love.graphics.setBackgroundColor(1,0,0)
         displayLevel(
             level,
-            minsize * w_h,minsize,
+            maxsize,minsize,
             0,0,
             true
         )
@@ -228,7 +270,7 @@ function love.draw()
         love.graphics.setBackgroundColor(0,1,0)
         displayLevel(
             level,
-            minsize * w_h,minsize,
+            maxsize,minsize,
             0,0,
             true
         )
@@ -236,9 +278,12 @@ function love.draw()
         player_draw(0,0,true,true)
         love.graphics.setColor(1,1,1)
     end
+
     love.graphics.setFont(newfont)
-    love.graphics.print(math.floor(timer * 10) .. "u",minsize * w_h,0)
-    love.graphics.print(steps .. "sept",minsize * w_h,48)
+    love.graphics.print(math.floor(timer) .. "s",maxsize,0)
+    love.graphics.print(steps .. "seps",maxsize,48)
+    love.graphics.print(math.floor(opened / alltosee * 100) .. "%",maxsize,96)
+    love.graphics.print(seed,maxsize,144)
     for x,y in pairs(keyboard) do -- save to old keyboard
         keyboardOld[x] = y
     end
@@ -287,6 +332,21 @@ function love.wheelmoved(x, y)
         wall = math.max(math.min(wall + y,30),3)
     elseif mouse.x > 325 and mouse.x < 400 and mouse.y > 175 and mouse.y < 255 then -- bombs
         bombs = math.max(math.min(bombs + y,math.floor(width * height * .25)),math.floor(width * height * 0.01))
+    elseif mouse.x > 25 and mouse.x < 725 and mouse.y > 450 and mouse.y < 525 then -- bombs
+        levels_select = levels_select + y
+        if levels_select < 1 then
+            levels_select = #all_levels
+        elseif levels_select > #all_levels then
+            levels_select = 1
+        end
+        width  = all_levels[levels_select]["width" ]
+        height = all_levels[levels_select]["height"]
+        wall   = all_levels[levels_select]["wall"  ]
+        bombs  = all_levels[levels_select]["bombs" ]
+        seed   = all_levels[levels_select]["seed"  ]
+        if seed == nil then
+            seed = os.time()
+        end
     end
 end
 

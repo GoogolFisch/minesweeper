@@ -1,0 +1,6 @@
+[
+{ "width": 30, "height": 20, "bombs": 60, "wall": 8, "name": "default"},
+{ "width": 30, "height": 20, "bombs": 70, "wall": 10, "name": "level-3"},
+{ "width": 30, "height": 20, "bombs": 80, "wall": 9, "name": "level-4"},
+{ "width": 30, "height": 20, "bombs": 90, "wall": 8, "name": "level-5"},
+{ "width": 10, "height": 10, "bombs": 10, "wall": 8, "name": "10-10"}]
