@@ -1,7 +1,7 @@
 function love.load()
     require("tileset")
     require("player")
-    require("jsonload")
+    moonjson = require("json")
     love.window.setTitle("MineSeeker")
 
     player_constructor()
@@ -34,14 +34,15 @@ function love.load()
     end
     setup()
     gametype = 0
-    local jsonfile = io.open("levels.json","r")
-    all_levels = load(jsonfile:read("*a"))
+
+    local jsonfile = io.open(".\\levels.json","r")
+    all_levels = moonjson.decode(jsonfile:read("*a"))
     io.close(jsonfile)
-    levels_select = 1
-    print(all_levels[levels_select])
-    for k,v in pairs(all_levels[levels_select]) do
-        print(k .. "|" .. v)
+    if all_levels == nil then
+        print("needs an json file!!")
+        love.window.close()
     end
+    levels_select = 1
 end
 
 function setup()
@@ -233,10 +234,12 @@ function love.draw()
         love.graphics.print("" .. bombs ,320,180) -- bombs
 
         love.graphics.setColor(.25,.25,.25)
-        love.graphics.rectangle("fill",25,450,700,75) -- name
+        love.graphics.rectangle("fill",25,550,700,75) -- name
 
         love.graphics.setColor(1,1,1)
-        love.graphics.print(all_levels[levels_select]["name"],25,450) -- name
+        love.graphics.print(all_levels[((levels_select) % #all_levels) + 1]["name"],25,450) -- name
+        love.graphics.print(all_levels[levels_select]["name"],25,550) -- name
+        love.graphics.print(all_levels[((levels_select - 2) % #all_levels) + 1]["name"],25,650) -- name
         love.graphics.print(seed,800,450) -- name
 
         love.graphics.setBackgroundColor(0,0,0)
@@ -332,7 +335,7 @@ function love.wheelmoved(x, y)
         wall = math.max(math.min(wall + y,30),3)
     elseif mouse.x > 325 and mouse.x < 400 and mouse.y > 175 and mouse.y < 255 then -- bombs
         bombs = math.max(math.min(bombs + y,math.floor(width * height * .25)),math.floor(width * height * 0.01))
-    elseif mouse.x > 25 and mouse.x < 725 and mouse.y > 450 and mouse.y < 525 then -- bombs
+    elseif mouse.x > 25 and mouse.x < 725 and mouse.y > 550 and mouse.y < 625 then -- bombs
         levels_select = levels_select + y
         if levels_select < 1 then
             levels_select = #all_levels
