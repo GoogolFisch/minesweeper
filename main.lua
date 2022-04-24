@@ -41,6 +41,7 @@ function love.load()
     if all_levels == nil then
         print("needs an json file!!")
         love.window.close()
+        love.event.quit(1)
     end
     levels_select = 1
 end
@@ -62,7 +63,7 @@ function setup()
     -- generate board
     math.randomseed(seed)
     math.random() math.random() math.random()
-    for y=1,height,1 do
+    for y=1,height,1 do -- generate map & put walls
         sublevel = {}
         for x=1,width,1 do
             if math.random(0,wall) == 0 then
@@ -76,14 +77,26 @@ function setup()
     end
 
     -- put bombs
+    if level[1][1] == 0 then -- count correction
+        alltosee = alltosee + 1
+    end
     level[1][1] = 2
+    if level[1][2] == 0 then -- count correction
+        alltosee = alltosee + 1
+    end
     level[1][2] = 2
+    if level[2][1] == 0 then -- count correction
+        alltosee = alltosee + 1
+    end
     level[2][1] = 2
+    if level[height][width] == 1 then -- count correction
+        alltosee = alltosee - 1
+    end
     level[height][width] = 5
     alltosee = alltosee - bombs
     opened = 3
 
-    for value=1,bombs do
+    for value=1,bombs do -- bomber
         ending = true
         while ending do
             y = math.random(1,height)
@@ -290,6 +303,7 @@ function love.draw()
     for x,y in pairs(keyboard) do -- save to old keyboard
         keyboardOld[x] = y
     end
+    -- print(alltosee .. ":" .. opened)
 end
 
 function love.keypressed( key, scancode, isrepeat )
