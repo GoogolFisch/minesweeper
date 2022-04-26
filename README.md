@@ -16,9 +16,3 @@ you need to "install" [löve2d](https://love2d.org/) <br/>
 move with `w` `a` `s` `d` or Arrow Keys <br/>
 reset with `r`                          <br/>
 setting with `m`                        <br/>
-
-----
-## I hate this
-the json file has to be where it gets executed!
-- `cd xyz ; love .`
-- move the Json File 1 level out
