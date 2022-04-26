@@ -1,8 +1,8 @@
 function love.load()
+
     require("tileset")
     require("player")
     moonjson = require("json")
-    love.window.setTitle("MineSeeker")
 
     player_constructor()
     keyboard = {["?"] = false}
@@ -27,7 +27,6 @@ function love.load()
 
     mouse = {["x"]=0,["y"]=0,["dx"]=0,["dy"]=0}
 
-    love.window.setMode(1600,900,{["resizable"]=true,["centered"]=true})
 
     if seed == nil then
         seed = os.time()
