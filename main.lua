@@ -13,6 +13,23 @@ function love.load()
     newfont = love.graphics.newFont(60)
 
     level = {}
+    -- 0 is wall
+    -- 1 is not opened
+    -- 2 is display
+    -- 3 is bombs
+    -- 5 is end point
+    -- 10 is display 0
+    -- 11 is display 1
+    -- 12 is display 2
+    -- 13 is display 3
+    -- 14 is display 4
+    -- 15 is display ?
+    -- 20 is wall squared²
+    -- 24 is wall 3 sides
+    -- 28 is wall aposing
+    -- 32 is wall 2 sides near
+    -- 36 is wall 1 side
+    -- 40 is wall no sides
     gametype = 0
     local sublevel
     local value
@@ -43,6 +60,72 @@ function love.load()
         love.event.quit(1)
     end
     levels_select = 1
+end
+
+function levelreload()
+    
+    lowW = #(level[1])
+    lowH = #(level)
+    local ib = {[true] = 1,[false] = 0};local iB = {[false] = 1,[true] = 0}
+    for y = 0, lowH - 1,1 do
+        for x = 0, lowW - 1,1 do
+            if level[y + 1][x + 1] == 0 then -- wall  Hell
+                local left = ((x     < 1   ) or (level[y + 1][x    ] == 0))
+                local up__ = ((y     < 1   ) or (level[y    ][x + 1] == 0))
+                local rigt = ((x + 2 > lowW) or (level[y + 1][x + 2] == 0)) -- right
+                local down = ((y + 2 > lowH) or (level[y + 2][x + 1] == 0))
+                if left and up__ and rigt and down then -- full square
+                    level[y + 1][x + 1] = 20
+                elseif ib[left] + ib[up__] + ib[rigt] + ib[down] == 3 then -- one side missing
+                    local rot = iB[up__] + iB[rigt] * 2 + iB[down] * 3
+                    level[y + 1][x + 1] = 24 + rot
+                elseif ib[left] + ib[rigt] == 2 or ib[up__] + ib[down] == 2 then -- oppisit sides missing
+                    level[y + 1][x + 1] = 28 + ib[left]
+                elseif ib[left] + ib[up__] + ib[rigt] + ib[down] == 2 then -- two ear sides missing
+                    local rot = 0;local ox = 0;local oy = 0 -- define everything
+                    if rigt and up__ then rot = 3;oy = 1 -- offsets
+                    elseif left and up__ then rot = 2;ox = 1;oy = 1 -- offsets
+                    elseif down and left then rot = 1;ox = 1 -- offsets
+                    end
+                    level[y + 1][x + 1] = 32 + rot
+                elseif ib[left] + ib[up__] + ib[rigt] + ib[down] == 1 then -- one side
+                    local rot = ib[up__] + ib[rigt] * 2 + ib[down] * 3
+                    level[y + 1][x + 1] = 36 + rot
+                elseif ib[left] + ib[up__] + ib[rigt] + ib[down] == 0 then -- no sides
+                    level[y + 1][x + 1] = 40
+                end
+                -- level[y + 1][x + 1] == 0
+            elseif level[y + 1][x + 1] == 2 then -- mine display
+                -- mines around the tile
+                local a = 
+                ib[((x     > 0    and y     > 0   ) and (level[y    ][x    ] == 3))] +
+                ib[((                 y     > 0   ) and (level[y    ][x + 1] == 3))] +
+                ib[((x + 1 < lowW and y     > 0   ) and (level[y    ][x + 2] == 3))] +
+                ib[((x + 1 < lowW                 ) and (level[y + 1][x + 2] == 3))] +
+                ib[((x + 1 < lowW and y + 1 < lowH) and (level[y + 2][x + 2] == 3))] +
+                ib[((                 y + 1 < lowH) and (level[y + 2][x + 1] == 3))] +
+                ib[((x     > 0    and y + 1 < lowH) and (level[y + 2][x    ] == 3))] +
+                ib[((x     > 0                    ) and (level[y + 1][x    ] == 3))]
+
+                if a == 0 then
+                    level[y + 1][x + 1] = 10
+                elseif a == 1 then
+                    level[y + 1][x + 1] = 11
+                elseif a == 2 then
+                    level[y + 1][x + 1] = 12
+                elseif a == 3 then
+                    level[y + 1][x + 1] = 13
+                elseif a == 4 then
+                    level[y + 1][x + 1] = 14
+                elseif a > 4 then
+                    level[y + 1][x + 1] = 15
+                end
+                -- level[y + 1][x + 1] == 2
+            elseif level[y + 1][x + 1] == 5 then
+                level[y + 1][x + 1] = 5
+            end
+        end -- [x = 0, lowW - 1,1]
+    end -- [y = 0, lowH - 1,1]
 end
 
 function setup()
@@ -106,6 +189,7 @@ function setup()
             end
         end
     end
+    levelreload()
 end
 
 function love.update(dt)
@@ -133,10 +217,15 @@ function love.update(dt)
             steps = steps + 1
 
             player.counter = 0.25 -- set animation
-            if level[player.y + 1][player.x + 1] == 1 or level[player.y + 1][player.x + 1] == 2 then
+            local lookup = {}
+            lookup[1] = true
+            lookup[2] = true
+            lookup[10] = true
+            if lookup[level[player.y + 1][player.x + 1]] ~= nil then
                 -- if walkable
                 if level[player.y + 1][player.x + 1] == 1 then
                     opened = opened + 1
+                    
                 end
                 level[player.y + 1][player.x + 1] = 2
                 local ib = {[true] = 1,[false] = 0}
@@ -187,6 +276,7 @@ function love.update(dt)
                         opened = opened + 1
                     end
                 end
+                levelreload()
             elseif level[player.y + 1][player.x + 1] == 3 then
                 -- bombs
                 gametype = 110
@@ -294,11 +384,12 @@ function love.draw()
         love.graphics.setColor(1,1,1)
     end
 
-    love.graphics.setFont(newfont)
-    love.graphics.print(math.floor(timer) .. "s",maxsize,0)
-    love.graphics.print(steps .. "seps",maxsize,48)
-    love.graphics.print(math.floor(opened / alltosee * 100) .. "%",maxsize,96)
-    love.graphics.print(seed,maxsize,144)
+    -- love.graphics.setFont(newfont)
+    love.graphics.print(math.floor(timer) .. "s",maxsize,0,0,1)
+    love.graphics.print(steps .. "seps",maxsize,48,0,1)
+    love.graphics.print(math.floor(opened / alltosee * 100) .. "%",maxsize,96,0,1)
+    love.graphics.print(seed,maxsize,144,0,1)
+    love.graphics.print(love.timer.getFPS() .. "fps",maxsize,200,0,1)
     for x,y in pairs(keyboard) do -- save to old keyboard
         keyboardOld[x] = y
     end

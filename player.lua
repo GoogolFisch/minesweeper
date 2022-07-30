@@ -17,22 +17,22 @@ function player_move(maxwidth,maxheight,keyboard,level)
     local righting = -- move right?
     ((keyboard["d"] == true and not keyboardOld["d"]) or (keyboard["right"] == true and not keyboardOld["right"])) or
     ((keyboard["d"] == true or keyboard["right"]) and player.counter < 0)
-    if uping and level[player.y    ] ~= nil and level[player.y    ][player.x + 1] ~= 0 then -- can move up
+    if uping and level[player.y    ] ~= nil and level[player.y    ][player.x + 1] ~= 0 and level[player.y    ][player.x + 1] < 20 then -- can move up
         player.y = math.max(0,player.y - 1)
         player.animation = 1
         move = true
     end
-    if downing and level[player.y + 2] ~= nil and level[player.y + 2][player.x + 1] ~= 0 then -- can move down
+    if downing and level[player.y + 2] ~= nil and level[player.y + 2][player.x + 1] ~= 0 and level[player.y + 2][player.x + 1] < 20 then -- can move down
         player.y = math.min(maxheight,player.y + 1)
         player.animation = 3
         move = true
     end
-    if lefting and level[player.y + 1][player.x    ] ~= nil and level[player.y + 1][player.x    ] ~= 0 then -- can move left
+    if lefting and level[player.y + 1][player.x    ] ~= nil and level[player.y + 1][player.x    ] ~= 0 and level[player.y + 1][player.x    ] < 20 then -- can move left
         player.x = math.max(0,player.x - 1)
         player.animation = 2
         move = true
     end
-    if righting and level[player.y + 1][player.x + 2] ~= nil and level[player.y + 1][player.x + 2] ~= 0 then -- can move right
+    if righting and level[player.y + 1][player.x + 2] ~= nil and level[player.y + 1][player.x + 2] ~= 0 and level[player.y + 1][player.x + 2] < 20 then -- can move right
         player.x = math.min(maxwidth,player.x + 1)
         player.animation = 4
         move = true
